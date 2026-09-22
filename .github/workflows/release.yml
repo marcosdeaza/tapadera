@@ -15,7 +15,7 @@ jobs:
     name: macOS
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Compilar la app
         working-directory: macos
@@ -43,7 +43,7 @@ jobs:
           ditto -c -k --keepParent macos/build/Tapadera.app dist/Tapadera-macos-universal.zip
           tar -czf dist/tapadera-macos-universal.tar.gz -C cli tapadera
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: macos
           path: dist/*
@@ -59,7 +59,7 @@ jobs:
           - target: aarch64-unknown-linux-gnu
             nombre: aarch64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Preparar el enlazador cruzado
         if: matrix.target == 'aarch64-unknown-linux-gnu'
@@ -84,7 +84,7 @@ jobs:
           tar -czf dist/tapadera-linux-${{ matrix.nombre }}.tar.gz \
             -C cli/target/${{ matrix.target }}/release tapadera
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: linux-${{ matrix.nombre }}
           path: dist/*
@@ -93,7 +93,7 @@ jobs:
     name: Windows
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Compilar
         working-directory: cli
@@ -107,7 +107,7 @@ jobs:
           mkdir dist
           Compress-Archive -Path cli\target\x86_64-pc-windows-msvc\release\tapadera.exe -DestinationPath dist\tapadera-windows-x86_64.zip
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: windows
           path: dist/*
@@ -118,7 +118,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           path: artefactos
 

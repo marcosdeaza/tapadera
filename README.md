@@ -52,6 +52,20 @@ firmado ad-hoc: la primera vez, clic derecho sobre la app y **Abrir**.
 
 El mismo concepto, sin interfaz, en los tres sistemas.
 
+### Instalación
+
+En macOS y Linux, de una línea:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/marcosdeaza/tapadera/main/install.sh | sh
+```
+
+En Windows, descarga `tapadera-windows-x86_64.zip` de la
+[última versión](https://github.com/marcosdeaza/tapadera/releases/latest) y pon el
+`.exe` en alguna carpeta de tu `PATH`.
+
+### Uso
+
 ```
 tapadera on        no dormir al cerrar la tapa
 tapadera off       volver al comportamiento normal
