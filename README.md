@@ -42,24 +42,12 @@ el sistema.
 
 ### Instalación
 
-Con Homebrew:
-
-```sh
-brew tap marcosdeaza/tap
-brew trust marcosdeaza/tap
-brew install --cask tapadera
-```
-
-El `brew trust` lo exige Homebrew para cualquier tap que no sea oficial; sin él
-se niega a cargar la receta.
-
-O descarga `Tapadera.app` de la [última versión](https://github.com/marcosdeaza/tapadera/releases/latest)
+Descarga `Tapadera.app` de la [última versión](https://github.com/marcosdeaza/tapadera/releases/latest)
 y muévela a Aplicaciones. Es un binario universal, Apple Silicon e Intel.
 
 La app está firmada ad-hoc, no con un certificado de desarrollador de Apple —
-eso cuesta 99 € al año y esto es una utilidad de 300 KB. La primera vez, ábrela
-con clic derecho > **Abrir**, o instálala con `--no-quarantine` y te ahorras el
-diálogo.
+eso cuesta 99 € al año y esto es una utilidad de 300 KB. Por eso la primera vez
+hay que abrirla con clic derecho > **Abrir** en lugar de doble clic. Una sola vez.
 
 ---
 
@@ -69,13 +57,7 @@ El mismo concepto, sin interfaz, en los tres sistemas.
 
 ### Instalación
 
-En macOS y Linux, con Homebrew:
-
-```sh
-brew install marcosdeaza/tap/tapadera
-```
-
-O de una línea, sin Homebrew:
+En macOS y Linux, de una línea:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/marcosdeaza/tapadera/main/install.sh | sh
