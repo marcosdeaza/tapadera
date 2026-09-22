@@ -1,0 +1,9 @@
+# Rust
+cli/target/
+
+# Compilación de macOS
+macos/build/
+*.dSYM/
+
+# macOS
+.DS_Store

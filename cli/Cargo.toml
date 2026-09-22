@@ -1,0 +1,18 @@
+[package]
+name = "tapadera"
+version = "1.0.0"
+edition = "2021"
+description = "Mantiene el ordenador trabajando con la tapa cerrada"
+license = "MIT"
+repository = "https://github.com/marcosdeaza/tapadera"
+
+[[bin]]
+name = "tapadera"
+path = "src/main.rs"
+
+[profile.release]
+opt-level = "z"
+lto = true
+strip = true
+codegen-units = 1
+panic = "abort"

@@ -1,0 +1,134 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  macos:
+    name: macOS
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compilar la app
+        working-directory: macos
+        run: ./build.sh build
+
+      - name: Compilar la herramienta (universal)
+        working-directory: cli
+        run: |
+          rustup target add aarch64-apple-darwin x86_64-apple-darwin
+          cargo build --release --target aarch64-apple-darwin
+          cargo build --release --target x86_64-apple-darwin
+          lipo -create -output tapadera \
+            target/aarch64-apple-darwin/release/tapadera \
+            target/x86_64-apple-darwin/release/tapadera
+
+      - name: Comprobar
+        run: |
+          lipo -archs macos/build/Tapadera.app/Contents/MacOS/Tapadera
+          lipo -archs cli/tapadera
+          cli/tapadera version
+
+      - name: Empaquetar
+        run: |
+          mkdir -p dist
+          ditto -c -k --keepParent macos/build/Tapadera.app dist/Tapadera-macos-universal.zip
+          tar -czf dist/tapadera-macos-universal.tar.gz -C cli tapadera
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: dist/*
+
+  linux:
+    name: Linux
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            nombre: x86_64
+          - target: aarch64-unknown-linux-gnu
+            nombre: aarch64
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar el enlazador cruzado
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+          echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc" >> "$GITHUB_ENV"
+
+      - name: Compilar
+        working-directory: cli
+        run: |
+          rustup target add ${{ matrix.target }}
+          cargo build --release --target ${{ matrix.target }}
+
+      - name: Comprobar
+        if: matrix.target == 'x86_64-unknown-linux-gnu'
+        run: cli/target/${{ matrix.target }}/release/tapadera version
+
+      - name: Empaquetar
+        run: |
+          mkdir -p dist
+          tar -czf dist/tapadera-linux-${{ matrix.nombre }}.tar.gz \
+            -C cli/target/${{ matrix.target }}/release tapadera
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-${{ matrix.nombre }}
+          path: dist/*
+
+  windows:
+    name: Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compilar
+        working-directory: cli
+        run: cargo build --release --target x86_64-pc-windows-msvc
+
+      - name: Comprobar
+        run: cli\target\x86_64-pc-windows-msvc\release\tapadera.exe version
+
+      - name: Empaquetar
+        run: |
+          mkdir dist
+          Compress-Archive -Path cli\target\x86_64-pc-windows-msvc\release\tapadera.exe -DestinationPath dist\tapadera-windows-x86_64.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: dist/*
+
+  publicar:
+    name: Publicar versión
+    needs: [macos, linux, windows]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artefactos
+
+      - name: Reunir
+        run: |
+          mkdir -p dist
+          find artefactos -type f \( -name '*.zip' -o -name '*.tar.gz' \) -exec cp {} dist/ \;
+          ls -lh dist
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
